@@ -1,4 +1,6 @@
 
+const ETC_SV_DIR: &str = "/etc/sv/";
+const VAR_SERVICE_DIR: &str = "var/service/";
 fn main() {
     let print_usage = ||{
         print!("USAGE:\n ms add [SERVICE]     -  add service\n ms remove [SERVICE]  -  remove service\n ms list              -  list all services\n") //функция, где пишем сообщение как использовать
@@ -18,40 +20,31 @@ fn main() {
         print_usage() // если не 2 и не 3 аргумента то выведи использование
     }
 }
-fn list_dir(s: String) -> Vec<String>{
-    let files: Vec<String> = std::fs::read_dir(s).unwrap().map(|e| e.unwrap().file_name().into_string().unwrap()).collect();
+fn list_dir(s: &str) -> Vec<String>{
+    let files: Vec<String> = std::fs::read_dir(s).unwrap().map(|e| e.unwrap().file_name().into_string().unwrap()).collect(); // создаем вектор,  в который записываем все имена дочерних объектов
     files
 }
-fn add_service(service: &String) {
-    println!("Adding Service..."); 
-    let files: Vec<String> = list_dir(String::from("/etc/sv/"));
+fn add_service(service: &String){
+    println!("Adding Service..."); //пишем что добавляем сервис
+    let files: Vec<String> = list_dir(ETC_SV_DIR); // смотрим все объекты внутри /etc/sv
 
-    let services: Vec<String> = list_dir(String::from("/var/service/"));
-    if files.contains(&service) && !services.contains(&service)  { // если файл с названием сервиса
-                                                                   // есть в дир1 но нет в дир2 то
+    let services: Vec<String> = list_dir(VAR_SERVICE_DIR);
+    if files.contains(&service) && !services.contains(&service)  { // если файл с названием сервиса есть в дир1 но нет в дир2 то
         let mut path = String::new(); // создаем строку
-        path.push_str("/etc/sv/"); //добавляем часть путя
+        path.push_str(ETC_SV_DIR); //добавляем часть путя
         path.push_str(&service); // добавляем вторую, будет /etc/sv/service
-        let ln_command = std::process::Command::new("ln") // делаем команду ln
-        .arg("-s")
-        .arg(path)
-        .arg("/var/service/")
-        .output()
-        .expect("[ERROR] can't add link");
-        if !ln_command.status.success() {
-            println!("[ERROR] Unknown error"); // если не нормально выполнилась то пишем error
-        }
-        else {
-            println!("Service added") //если все ок то пишем что добавлено
-        }
+        let mut link_path = String::from(VAR_SERVICE_DIR); //делаем путь куда будет копироватся
+        link_path.push_str(service);
+        let _link = std::os::unix::fs::symlink(path, link_path).expect("[ERROR] can`t add link!"); //копируем
+        println!("success!");
     }
     else {
-        println!("[ERROR] check /etc/sv or /var/service");
+        println!("[ERROR] service already added"); 
     }
 }
 fn remove_service(service: &String) {
     println!("Removing...");
-    let services: Vec<String> = list_dir(String::from("/var/service/"));
+    let services: Vec<String> = list_dir(VAR_SERVICE_DIR);
     if services.contains(&service) {
         let mut path = String::new();
         path.push_str("/var/service/");
@@ -62,7 +55,7 @@ fn remove_service(service: &String) {
 }
 }
 fn list_services() {
-    let services: Vec<String> = list_dir(String::from("/etc/sv/"));
+    let services: Vec<String> = list_dir(ETC_SV_DIR);
     for service in services {
         println!("{}", service);
     }
