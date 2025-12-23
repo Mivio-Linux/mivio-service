@@ -1,6 +1,6 @@
 # mivio service 
 ## Моя маленькая утилита для упрощения управления сервисами в void linux
-![Mivio Service logo](cmd.png)
+![Mivio Service logo](logo.png)
 она очень простая и написана всего в около ~70 строчек кода.
 Утилита умеет удалять/добавлять ссылки с /etc/sv в /var/service
 Так-же отображать содержимое /etc/sv
