@@ -1,4 +1,3 @@
-
 const ETC_SV_DIR: &str = "/etc/sv/";
 const VAR_SERVICE_DIR: &str = "var/service/";
 fn main() {
