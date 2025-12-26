@@ -1,5 +1,5 @@
 const ETC_SV_DIR: &str = "/etc/sv/";
-const VAR_SERVICE_DIR: &str = "var/service/";
+const VAR_SERVICE_DIR: &str = "/var/service/";
 fn main() {
     let print_usage = ||{
         print!("USAGE:\n ms add [SERVICE]     -  add service\n ms remove [SERVICE]  -  remove service\n ms list              -  list all services\n") //функция, где пишем сообщение как использовать
